@@ -9,29 +9,38 @@ const io = require("socket.io")(http, {
 });
 const { Telnet } = require("telnet-client");
 
-const connection = new Telnet();
-
 // Define the Telnet server information
-const host = "100.64.28.10";
-const portTelnet = 23; // Default Telnet port
+
+let connection = null;
 
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("connectTelnet", (ip) => {
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+
+  socket.on("connectTelnet", ({ ip, command }) => {
+    if (connection) {
+      connection.end();
+    }
+
+    connection = new Telnet();
+
     const params = {
       host: ip,
       port: 23,
       negotiationMandatory: false,
       timeout: 1500,
-      username: "cliente",
-      password: "1234",
+      username: "admin",
+      password: "OT#internet2018",
     };
+    console.log(params);
     connection.on("ready", function () {
       console.log("Connected to Telnet server");
 
       // Send commands to the server
-      connection.exec("ethtool eth0", function (err, response) {
+      connection.exec(command, function (err, response) {
         if (err) {
           console.log(err);
         } else {
@@ -51,9 +60,6 @@ io.on("connection", (socket) => {
     connection.connect(params);
   });
   // Handle client disconnection
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
 });
 
 // // Create a TCP socket connection to the Telnet server
