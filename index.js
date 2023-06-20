@@ -11,7 +11,7 @@ const { Telnet } = require("telnet-client");
 
 // Define the Telnet server information
 
-let connection = null;
+const connection = new Telnet();
 
 io.on("connection", (socket) => {
   console.log("A user connected");
@@ -21,26 +21,22 @@ io.on("connection", (socket) => {
   });
 
   socket.on("connectTelnet", ({ ip, command }) => {
-    if (connection) {
-      connection.end();
-    }
-
-    connection = new Telnet();
-
     const params = {
       host: ip,
       port: 23,
       negotiationMandatory: false,
       timeout: 1500,
+      failedLoginMatch: "/error en autentication",
       username: "admin",
-      password: "OT#internet2018",
+      password: "OT#internet201",
     };
-    console.log(params);
     connection.on("ready", function () {
       console.log("Connected to Telnet server");
 
       // Send commands to the server
-      connection.exec(command, function (err, response) {
+      connection.exec("ipconfig", async function (err, response) {
+        console.log("response");
+        console.log(response);
         if (err) {
           console.log(err);
         } else {
