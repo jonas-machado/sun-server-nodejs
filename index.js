@@ -11,8 +11,6 @@ const { Telnet } = require("telnet-client");
 
 // Define the Telnet server information
 
-const connection = new Telnet();
-
 io.on("connection", (socket) => {
   console.log("A user connected");
 
@@ -21,32 +19,36 @@ io.on("connection", (socket) => {
   });
 
   socket.on("connectTelnet", ({ ip, command }) => {
+    console.log(ip, command);
+    const connection = new Telnet();
     const params = {
       host: ip,
       port: 23,
-      negotiationMandatory: false,
+      shellPrompt: "",
+      //negotiationMandatory: false,
       timeout: 1500,
-      failedLoginMatch: "/error en autentication",
+      loginPrompt: "/Username[: ]*$/i",
+      passwordPrompt: "/Password: /i",
       username: "admin",
-      password: "OT#internet201",
+      password: "OT#internet2018",
+      failedLoginMatch: "Bad Username/Password",
     };
     connection.on("ready", function () {
       console.log("Connected to Telnet server");
 
       // Send commands to the server
-      connection.exec("ipconfig", async function (err, response) {
-        console.log("response");
-        console.log(response);
-        if (err) {
-          console.log(err);
-        } else {
-          io.emit("telnet response", response);
+      connection.exec(
+        "show pon power attenuation gpon-onu_1/2/2:1",
+        async function (err, response) {
           console.log(response);
-        }
+          if (err) {
+            console.log(err);
+          }
 
-        // Close the connection
-        connection.end();
-      });
+          // Close the connection
+          //connection.end();
+        }
+      );
     });
 
     connection.on("close", function () {
