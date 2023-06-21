@@ -1,4 +1,3 @@
-const net = require("net");
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
@@ -24,31 +23,30 @@ io.on("connection", (socket) => {
     const params = {
       host: ip,
       port: 23,
-      shellPrompt: "",
+      shellPrompt: "#",
       //negotiationMandatory: false,
-      timeout: 1500,
-      loginPrompt: "/Username[: ]*$/i",
-      passwordPrompt: "/Password: /i",
+      timeout: 5000,
+      execTimeout: 5000,
+      loginPrompt: "Username:",
+      passwordPrompt: "Password:",
       username: "admin",
       password: "OT#internet2018",
-      failedLoginMatch: "Bad Username/Password",
+      pageSeparator: "--More--",
     };
     connection.on("ready", function () {
       console.log("Connected to Telnet server");
 
       // Send commands to the server
-      connection.exec(
-        "show pon power attenuation gpon-onu_1/2/2:1",
-        async function (err, response) {
-          console.log(response);
-          if (err) {
-            console.log(err);
-          }
-
-          // Close the connection
-          //connection.end();
+      connection.exec(command, async function (err, response) {
+        console.log(response);
+        io.emit("telnet response", response);
+        if (err) {
+          console.log(err);
         }
-      );
+
+        // Close the connection
+        connection.end();
+      });
     });
 
     connection.on("close", function () {
@@ -59,38 +57,6 @@ io.on("connection", (socket) => {
   });
   // Handle client disconnection
 });
-
-// // Create a TCP socket connection to the Telnet server
-// const client = net.createConnection({ host, portTelnet }, () => {
-//   console.log("Connected to Telnet server");
-//   client.write("cliente\r\n");
-// });
-
-// // Handle data received from the Telnet server
-// client.on("data", async (data) => {
-//   const dataString = data.toString();
-//   console.log("Received:", data.toString());
-//   if (data.includes("login:")) {
-//     client.write("cliente\r\n");
-//   }
-//   if (data.includes("Password:")) {
-//     client.write("1234\r\n");
-//   }
-//   if (data.includes("BusyBox")) {
-//     client.write("ethtool eth0\r\n");
-//     client.write("exit\r\n");
-//   }
-// });
-
-// // Handle connection close
-// client.on("close", () => {
-//   console.log("Connection closed");
-// });
-
-// // Handle errors
-// client.on("error", (err) => {
-//   console.error("Error:", err);
-// });
 
 const port = 3001;
 http.listen(port, () => {
