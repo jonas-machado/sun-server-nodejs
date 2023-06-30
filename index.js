@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
           // Send commands to the server
           connection.exec(commands[i], async function (err, response) {
             console.log(response);
-            io.emit("multipleResponses", response);
+            io.emit("telnet response", response);
             if (err) {
               console.log(err);
             }
