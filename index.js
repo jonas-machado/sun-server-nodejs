@@ -3,7 +3,8 @@ const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
   },
 });
 const { Telnet } = require("telnet-client");
@@ -17,8 +18,8 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 
-  socket.on("connectTelnet", ({ ip, command }) => {
-    console.log(ip, command);
+  socket.on("connectTelnet", ({ ip, command, brand }) => {
+    console.log(ip, command, brand);
     const connection = new Telnet();
     const params = {
       host: ip,
@@ -47,6 +48,54 @@ io.on("connection", (socket) => {
         // Close the connection
         connection.end();
       });
+    });
+
+    connection.on("close", function () {
+      console.log("Disconnected from Telnet server");
+    });
+
+    connection.connect(params);
+  });
+
+  socket.on("connectTelnetDatacom", ({ ip, commands, brand }) => {
+    console.log(ip, commands, brand);
+    const connection = new Telnet();
+    const params = {
+      host: ip,
+      port: 23,
+      //negotiationMandatory: false,
+      timeout: 5000,
+      execTimeout: 20000,
+      username: "admin",
+      password: "OT#internet2018",
+      pageSeparator: "--More--",
+      shellPrompt: /OLT.*#/g,
+    };
+    connection.on("ready", async function () {
+      console.log("Connected to Telnet server");
+      let i = 0;
+      const sendNextCommand = async () => {
+        if (i < commands.length) {
+          // Send commands to the server
+          await connection.exec(
+            commands[i],
+            { execTimeout: 50000 },
+            async function (err, response) {
+              console.log(response);
+              await io.emit("telnet response", response);
+              if (err) {
+                console.log(err);
+              }
+              i++;
+              await sendNextCommand();
+            }
+          );
+        } else {
+          // Close the connection
+          connection.end();
+        }
+      };
+      await sendNextCommand();
     });
 
     connection.on("close", function () {

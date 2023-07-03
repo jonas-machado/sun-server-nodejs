@@ -1,42 +1,43 @@
 const { Telnet } = require("telnet-client");
 
-// Define the Telnet server information
-
 const connection = new Telnet();
 const params = {
-  host: "192.168.254.66",
+  host: "172.16.42.150",
   port: 23,
+  shellPrompt: "#",
+  //negotiationMandatory: false,
   timeout: 5000,
-  pageSeparator: "--More--",
+  execTimeout: 5000,
+  loginPrompt: "Username:",
+  passwordPrompt: "Password:",
   username: "admin",
   password: "OT#internet2018",
-  shellPrompt: /OLT.*#/g,
-  execTimeout: 10000,
+  pageSeparator: "--More--",
 };
-connection.on("ready", async function (prompt) {
+connection.on("ready", function () {
   console.log("Connected to Telnet server");
-  console.log(prompt);
 
-  await connection.send("conf", async function (err, response) {
+  // Send commands to the server
+  connection.exec("conf t", async function (err, response) {
     console.log(response);
     if (err) {
       console.log(err);
     }
     await connection.exec(
-      "do show interface gpon 1/1/1 onu ",
+      "show gpon onu detail-info gpon-onu_1/2/1:1",
       async function (err, response) {
         console.log(response);
         if (err) {
           console.log(err);
         }
+
+        // Close the connection
       }
     );
+    // Close the connection
     connection.end();
   });
-
-  // Close the connection
 });
-
 connection.on("close", function () {
   console.log("Disconnected from Telnet server");
 });
