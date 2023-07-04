@@ -6,32 +6,31 @@ const connection = new Telnet();
 const params = {
   host: "192.168.254.66",
   port: 23,
-  timeout: 5000,
-  pageSeparator: "--More--",
+  timeout: 2000,
+  pageSeparator: /--More--|END/,
   username: "admin",
   password: "OT#internet2018",
   shellPrompt: /OLT.*#/g,
-  execTimeout: 10000,
 };
-connection.on("ready", async function (prompt) {
+connection.on("ready", function (prompt) {
   console.log("Connected to Telnet server");
-  console.log(prompt);
 
-  await connection.send("conf", async function (err, response) {
+  connection.send("conf", function (err, response) {
     console.log(response);
     if (err) {
-      console.log(err);
+      console.log("err conf");
     }
-    await connection.exec(
-      "do show interface gpon 1/1/1 onu ",
-      async function (err, response) {
+    connection.exec(
+      //"do show system clock",
+      "do show interface gpon 1/1/1 onu 1",
+      function (err, response) {
         console.log(response);
         if (err) {
-          console.log(err);
+          console.log("err command");
         }
+        connection.end();
       }
     );
-    connection.end();
   });
 
   // Close the connection

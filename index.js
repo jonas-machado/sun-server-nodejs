@@ -57,50 +57,52 @@ io.on("connection", (socket) => {
     connection.connect(params);
   });
 
-  socket.on("connectTelnetDatacom", ({ ip, commands, brand }) => {
-    console.log(ip, commands, brand);
+  socket.on("connectTelnetDatacom", ({ ip, command, brand }) => {
+    console.log(ip, command, brand);
     const connection = new Telnet();
     const params = {
       host: ip,
       port: 23,
       //negotiationMandatory: false,
-      timeout: 5000,
-      execTimeout: 20000,
+      timeout: 2000,
       username: "admin",
       password: "OT#internet2018",
-      pageSeparator: "--More--",
+      pageSeparator: /--More--|END/g,
       shellPrompt: /OLT.*#/g,
     };
     connection.on("ready", async function () {
       console.log("Connected to Telnet server");
-      let i = 0;
-      const sendNextCommand = async () => {
-        if (i < commands.length) {
-          // Send commands to the server
-          await connection.exec(
-            commands[i],
-            { execTimeout: 50000 },
-            async function (err, response) {
-              console.log(response);
-              await io.emit("telnet response", response);
-              if (err) {
-                console.log(err);
-              }
-              i++;
-              await sendNextCommand();
-            }
-          );
-        } else {
-          // Close the connection
-          connection.end();
+      connection.send("conf", function (err, response) {
+        console.log(response);
+        if (err) {
+          console.log(err);
         }
-      };
-      await sendNextCommand();
+        connection.exec(
+          command,
+          { execTimeout: 10000 },
+          function (err, response) {
+            const cleanedResponse = cleanPagination(response);
+
+            console.log(response);
+            io.emit("telnet response", cleanedResponse);
+            if (err) {
+              console.log(err);
+            }
+
+            connection.end();
+          }
+        );
+      });
     });
 
     connection.on("close", function () {
       console.log("Disconnected from Telnet server");
     });
+
+    function cleanPagination(response) {
+      const paginationRegex = /--More--|\x1b\[7m\x1b\[27m\x1b\[8D\x1b\[K/g;
+      return response.replace(paginationRegex, "");
+    }
 
     connection.connect(params);
   });

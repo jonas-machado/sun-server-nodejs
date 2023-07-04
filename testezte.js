@@ -12,7 +12,7 @@ const params = {
   passwordPrompt: "Password:",
   username: "admin",
   password: "OT#internet2018",
-  pageSeparator: "--More--",
+  pageSeparator: /--More--|END/,
 };
 connection.on("ready", function () {
   console.log("Connected to Telnet server");
