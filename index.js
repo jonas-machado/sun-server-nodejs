@@ -18,8 +18,8 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 
-  socket.on("connectTelnet", ({ ip, command, brand }) => {
-    console.log(ip, command, brand);
+  socket.on("connectTelnet", ({ ip, command, brand, commandType }) => {
+    console.log(ip, command, brand, commandType);
     const connection = new Telnet();
     const params = {
       host: ip,
@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
       // Send commands to the server
       connection.exec(command, async function (err, response) {
         console.log(response);
-        io.emit("telnet response", response);
+        io.emit("telnet response", { res: response, commandType: commandType });
         if (err) {
           console.log(err);
         }
@@ -56,6 +56,7 @@ io.on("connection", (socket) => {
 
     connection.connect(params);
   });
+
   try {
     socket.on("connectTelnetDatacom", ({ ip, command, brand }) => {
       console.log(ip, command, brand);
@@ -109,7 +110,7 @@ io.on("connection", (socket) => {
   } catch (err) {
     throw new Error(err);
   }
-  socket.on("multipleCommands", ({ ip, commands }) => {
+  socket.on("multipleDetailTelnet", ({ ip, commands }) => {
     console.log(ip, commands);
     const connection = new Telnet();
     const params = {
@@ -133,7 +134,7 @@ io.on("connection", (socket) => {
           // Send commands to the server
           connection.exec(commands[i], async function (err, response) {
             console.log(response);
-            io.emit("telnet response", response);
+            io.emit("detailResponse", response);
             if (err) {
               console.log(err);
             }
