@@ -40,7 +40,10 @@ io.on("connection", (socket) => {
       // Send commands to the server
       connection.exec(command, async function (err, response) {
         console.log(response);
-        io.emit("telnet response", { res: response, commandType: commandType });
+        io.emit("telnet response", {
+          data: response,
+          commandType: commandType,
+        });
         if (err) {
           console.log(err);
         }
@@ -58,7 +61,7 @@ io.on("connection", (socket) => {
   });
 
   try {
-    socket.on("connectTelnetDatacom", ({ ip, command, brand }) => {
+    socket.on("connectTelnetDatacom", ({ ip, command, brand, commandType }) => {
       console.log(ip, command, brand);
       const connection = new Telnet();
       const params = {
@@ -85,7 +88,10 @@ io.on("connection", (socket) => {
               const cleanedResponse = cleanPagination(response);
 
               console.log(response);
-              io.emit("telnet response", cleanedResponse);
+              io.emit("telnet response", {
+                data: cleanedResponse,
+                commandType: commandType,
+              });
               if (err) {
                 console.log(err);
               }
@@ -102,7 +108,11 @@ io.on("connection", (socket) => {
 
       function cleanPagination(response) {
         const paginationRegex = /--More--|\x1b\[7m\x1b\[27m\x1b\[8D\x1b\[K/g;
-        return response.replace(paginationRegex, "");
+        const paginationRegexExtra =
+          /\(END\)|\x1b\[7m\(\)\x1b\[27m\x1b\[5D\x1b\[K/g;
+        return response
+          .replace(paginationRegex, "")
+          .replace(paginationRegexExtra, "");
       }
 
       connection.connect(params);
@@ -110,7 +120,7 @@ io.on("connection", (socket) => {
   } catch (err) {
     throw new Error(err);
   }
-  socket.on("multipleDetailTelnet", ({ ip, commands }) => {
+  socket.on("multipleTelnet", ({ ip, commands, brand, commandType }) => {
     console.log(ip, commands);
     const connection = new Telnet();
     const params = {
@@ -129,12 +139,13 @@ io.on("connection", (socket) => {
     connection.on("ready", function () {
       console.log("Connected to Telnet server");
       let i = 0;
+      let res = [];
       const sendNextCommand = () => {
         if (i < commands.length) {
           // Send commands to the server
           connection.exec(commands[i], async function (err, response) {
             console.log(response);
-            io.emit("detailResponse", response);
+            res.push(response);
             if (err) {
               console.log(err);
             }
@@ -142,6 +153,70 @@ io.on("connection", (socket) => {
             sendNextCommand();
           });
         } else {
+          io.emit("multipleResponse", {
+            data: res,
+            brand: brand,
+            commandType: commandType,
+          });
+          // Close the connection
+          connection.end();
+        }
+      };
+      sendNextCommand();
+    });
+
+    connection.on("close", function () {
+      console.log("Disconnected from Telnet server");
+    });
+
+    connection.connect(params);
+  });
+
+  socket.on("multipleDatacomTelnet", ({ ip, commands, brand, commandType }) => {
+    console.log(ip, commands);
+    const connection = new Telnet();
+    const params = {
+      host: ip,
+      port: 23,
+      //negotiationMandatory: false,
+      timeout: 2000,
+      username: "admin",
+      password: "OT#internet2018",
+      pageSeparator: /--More--|END/g,
+      shellPrompt: /OLT.*#/g,
+    };
+    connection.on("ready", function () {
+      console.log("Connected to Telnet server");
+      let i = 0;
+      let res = [];
+      const sendNextCommand = () => {
+        if (i < commands.length) {
+          // Send commands to the server
+          connection.send("conf", function (err, response) {
+            console.log(response);
+            if (err) {
+              console.log(err);
+            }
+            connection.exec(
+              commands[i],
+              { execTimeout: 20000 },
+              async function (err, response) {
+                console.log(response);
+                res.push(response);
+                if (err) {
+                  console.log(err);
+                }
+                i++;
+                sendNextCommand();
+              }
+            );
+          });
+        } else {
+          io.emit("multipleResponse", {
+            data: res,
+            brand: brand,
+            commandType: commandType,
+          });
           // Close the connection
           connection.end();
         }
