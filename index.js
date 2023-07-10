@@ -189,14 +189,14 @@ io.on("connection", (socket) => {
       console.log("Connected to Telnet server");
       let i = 0;
       let res = [];
-      const sendNextCommand = () => {
-        if (i < commands.length) {
-          // Send commands to the server
-          connection.send("conf", function (err, response) {
-            console.log(response);
-            if (err) {
-              console.log(err);
-            }
+      connection.send("conf", function (err, response) {
+        console.log(response);
+        if (err) {
+          console.log(err);
+        }
+        const sendNextCommand = () => {
+          if (i < commands.length) {
+            // Send commands to the server
             connection.exec(
               commands[i],
               { execTimeout: 20000 },
@@ -210,17 +210,17 @@ io.on("connection", (socket) => {
                 sendNextCommand();
               }
             );
-          });
-        } else {
-          io.emit("multipleResponse", {
-            data: res,
-            brand: brand,
-            commandType: commandType,
-          });
-          // Close the connection
-          connection.end();
-        }
-      };
+          } else {
+            io.emit("multipleResponse", {
+              data: res,
+              brand: brand,
+              commandType: commandType,
+            });
+            // Close the connection
+            connection.end();
+          }
+        };
+      });
       sendNextCommand();
     });
 
