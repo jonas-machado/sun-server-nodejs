@@ -3,7 +3,7 @@ const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://177.200.131.54:3000",
     methods: ["GET", "POST"],
   },
 });
@@ -154,7 +154,7 @@ io.on("connection", (socket) => {
           });
         } else {
           io.emit("multipleResponse", {
-            data: res,
+            data: cleanedResponse,
             brand: brand,
             commandType: commandType,
           });
@@ -168,6 +168,15 @@ io.on("connection", (socket) => {
     connection.on("close", function () {
       console.log("Disconnected from Telnet server");
     });
+
+    function cleanPagination(response) {
+      const paginationRegex = /--More--|\x1b\[7m\x1b\[27m\x1b\[8D\x1b\[K/g;
+      const paginationRegexExtra =
+        /\(END\)|\x1b\[7m\(\)\x1b\[27m\x1b\[5D\x1b\[K/g;
+      return response
+        .replace(paginationRegex, "")
+        .replace(paginationRegexExtra, "");
+    }
 
     connection.connect(params);
   });
@@ -211,8 +220,9 @@ io.on("connection", (socket) => {
               }
             );
           } else {
+            const cleanedResponse = res.map((ont) => cleanPagination(ont));
             io.emit("multipleResponse", {
-              data: res,
+              data: cleanedResponse,
               brand: brand,
               commandType: commandType,
             });
@@ -220,13 +230,22 @@ io.on("connection", (socket) => {
             connection.end();
           }
         };
+        sendNextCommand();
       });
-      sendNextCommand();
     });
 
     connection.on("close", function () {
       console.log("Disconnected from Telnet server");
     });
+
+    function cleanPagination(response) {
+      const paginationRegex = /--More--|\x1b\[7m\x1b\[27m\x1b\[8D\x1b\[K/g;
+      const paginationRegexExtra =
+        /\(END\)|\x1b\[7m\(\)\x1b\[27m\x1b\[5D\x1b\[K/g;
+      return response
+        .replace(paginationRegex, "")
+        .replace(paginationRegexExtra, "");
+    }
 
     connection.connect(params);
   });
