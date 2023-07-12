@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, {
+  cors: "*",
+});
 const { Telnet } = require("telnet-client");
 
 // Define the Telnet server information
