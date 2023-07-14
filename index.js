@@ -7,10 +7,10 @@ const { Telnet } = require("telnet-client");
 // Define the Telnet server information
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("A user connected", socket.id);
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    console.log("A user disconnected", socket.id);
   });
 
   socket.on("connectTelnet", ({ ip, command, brand, commandType }) => {
@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
       shellPrompt: /OLT.*#/g,
     };
     connection.on("ready", async function () {
-      console.log("Connected to Telnet server");
+      console.log("Connected to Telnet server", socket.id);
       connection.send("conf", function (err, response) {
         console.log(response);
         if (err) {
@@ -82,7 +82,7 @@ io.on("connection", (socket) => {
             const cleanedResponse = cleanPagination(response);
 
             console.log(response);
-            io.emit("telnet response", {
+            io.to(socket.id).emit("telnet response", {
               data: cleanedResponse,
               commandType: commandType,
             });
