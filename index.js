@@ -9,14 +9,14 @@ const { Telnet } = require("telnet-client");
 // Define the Telnet server information
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("A user connected", socket.id);
 
   socket.on("disconnect", () => {
-    console.log("A user disconnected");
+    console.log("A user disconnected", socket.id);
   });
 
   socket.on("connectTelnet", ({ ip, command, brand, commandType }) => {
-    console.log(ip, command, brand, commandType);
+    console.log("to run telnet zte");
     const connection = new Telnet();
     const params = {
       host: ip,
@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
       // Send commands to the server
       connection.exec(command, async function (err, response) {
         console.log(response);
-        io.emit("telnet response", {
+        io.to(socket.id).emit("telnet response", {
           data: response,
           commandType: commandType,
         });
@@ -59,6 +59,7 @@ io.on("connection", (socket) => {
 
   try {
     socket.on("connectTelnetDatacom", ({ ip, command, brand, commandType }) => {
+      console.log("to run telnet datacom");
       console.log(ip, command, brand);
       const connection = new Telnet();
       const params = {
@@ -85,7 +86,7 @@ io.on("connection", (socket) => {
               const cleanedResponse = cleanPagination(response);
 
               console.log(response);
-              io.emit("telnet response", {
+              io.to(socket.id).emit("telnet response", {
                 data: cleanedResponse,
                 commandType: commandType,
               });
@@ -150,7 +151,7 @@ io.on("connection", (socket) => {
             sendNextCommand();
           });
         } else {
-          io.emit("multipleResponse", {
+          io.to(socket.id).emit("multipleResponse", {
             data: res,
             brand: brand,
             commandType: commandType,
@@ -209,7 +210,7 @@ io.on("connection", (socket) => {
             );
           } else {
             const cleanedResponse = res.map((ont) => cleanPagination(ont));
-            io.emit("multipleResponse", {
+            io.to(socket.id).emit("multipleResponse", {
               data: cleanedResponse,
               brand: brand,
               commandType: commandType,

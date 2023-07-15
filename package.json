@@ -4,7 +4,8 @@
   "description": "telnet client",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "server": "nodemon index.js",
+    "test": "nodemon teste.js"
   },
   "author": "",
   "license": "ISC",
