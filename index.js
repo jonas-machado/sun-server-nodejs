@@ -2,19 +2,19 @@ const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
-  cors: "*",
+  cors: { origin: "*" },
 });
 const { Telnet } = require("telnet-client");
 
-// Define the Telnet server information
-
+// quando conectar fazer algo
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
-
+  // quando cliente desconectar
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
 
+  // escuta se cliente emitiu algo para o
   socket.on("connectTelnet", ({ ip, command, brand, commandType }) => {
     console.log("to run telnet zte");
     const connection = new Telnet();
@@ -57,67 +57,65 @@ io.on("connection", (socket) => {
     connection.connect(params);
   });
 
-  try {
-    socket.on("connectTelnetDatacom", ({ ip, command, brand, commandType }) => {
-      console.log("to run telnet datacom");
-      console.log(ip, command, brand);
-      const connection = new Telnet();
-      const params = {
-        host: ip,
-        port: 23,
-        //negotiationMandatory: false,
-        timeout: 2000,
-        username: "admin",
-        password: "OT#internet2018",
-        pageSeparator: /--More--|END/g,
-        shellPrompt: /OLT.*#/g,
-      };
-      connection.on("ready", async function () {
-        console.log("Connected to Telnet server");
-        connection.send("conf", function (err, response) {
-          console.log(response);
-          if (err) {
-            console.log(err);
-          }
-          connection.exec(
-            command,
-            { execTimeout: 10000 },
-            function (err, response) {
-              const cleanedResponse = cleanPagination(response);
+  // escuta se cliente emitiu algo para o
+  socket.on("connectTelnetDatacom", ({ ip, command, brand, commandType }) => {
+    console.log(ip, command, brand);
+    const connection = new Telnet();
+    const params = {
+      host: ip,
+      port: 23,
+      //negotiationMandatory: false,
+      timeout: 2000,
+      username: "admin",
+      password: "OT#internet2018",
+      pageSeparator: /--More--|END/g,
+      shellPrompt: /OLT.*#/g,
+    };
+    connection.on("ready", async function () {
+      console.log("Connected to Telnet server");
+      connection.send("conf", function (err, response) {
+        console.log(response);
+        if (err) {
+          console.log(err);
+        }
+        connection.exec(
+          command,
+          { execTimeout: 10000 },
+          function (err, response) {
+            const cleanedResponse = cleanPagination(response);
 
-              console.log(response);
-              io.to(socket.id).emit("telnet response", {
-                data: cleanedResponse,
-                commandType: commandType,
-              });
-              if (err) {
-                console.log(err);
-              }
-
-              connection.end();
+            console.log(response);
+            io.to(socket.id).emit("telnet response", {
+              data: cleanedResponse,
+              commandType: commandType,
+            });
+            if (err) {
+              console.log(err);
             }
-          );
-        });
+
+            connection.end();
+          }
+        );
       });
-
-      connection.on("close", function () {
-        console.log("Disconnected from Telnet server");
-      });
-
-      function cleanPagination(response) {
-        const paginationRegex = /--More--|\x1b\[7m\x1b\[27m\x1b\[8D\x1b\[K/g;
-        const paginationRegexExtra =
-          /\(END\)|\x1b\[7m\(\)\x1b\[27m\x1b\[5D\x1b\[K/g;
-        return response
-          .replace(paginationRegex, "")
-          .replace(paginationRegexExtra, "");
-      }
-
-      connection.connect(params);
     });
-  } catch (err) {
-    throw new Error(err);
-  }
+
+    connection.on("close", function () {
+      console.log("Disconnected from Telnet server");
+    });
+
+    function cleanPagination(response) {
+      const paginationRegex = /--More--|\x1b\[7m\x1b\[27m\x1b\[8D\x1b\[K/g;
+      const paginationRegexExtra =
+        /\(END\)|\x1b\[7m\(\)\x1b\[27m\x1b\[5D\x1b\[K/g;
+      return response
+        .replace(paginationRegex, "")
+        .replace(paginationRegexExtra, "");
+    }
+
+    connection.connect(params);
+  });
+
+  // escuta se cliente emitiu algo para o
   socket.on("multipleTelnet", ({ ip, commands, brand, commandType }) => {
     console.log(ip, commands);
     const connection = new Telnet();
@@ -170,6 +168,7 @@ io.on("connection", (socket) => {
     connection.connect(params);
   });
 
+  // escuta se cliente emitiu algo para o
   socket.on("multipleDatacomTelnet", ({ ip, commands, brand, commandType }) => {
     console.log(ip, commands);
     const connection = new Telnet();
