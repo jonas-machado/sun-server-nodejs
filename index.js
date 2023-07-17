@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, {
+  cors: { origin: "*" },
+});
 const { Telnet } = require("telnet-client");
 
 // Define the Telnet server information
@@ -35,7 +37,7 @@ io.on("connection", (socket) => {
       // Send commands to the server
       connection.exec(command, async function (err, response) {
         console.log(response);
-        io.emit("telnet response", {
+        io.to(socket.id).emit("telnet response", {
           data: response,
           commandType: commandType,
         });
@@ -145,7 +147,7 @@ io.on("connection", (socket) => {
             sendNextCommand();
           });
         } else {
-          io.emit("multipleResponse", {
+          io.to(socket.id).emit("multipleResponse", {
             data: res,
             brand: brand,
             commandType: commandType,
@@ -204,7 +206,7 @@ io.on("connection", (socket) => {
             );
           } else {
             const cleanedResponse = res.map((ont) => cleanPagination(ont));
-            io.emit("multipleResponse", {
+            io.to(socket.id).emit("multipleResponse", {
               data: cleanedResponse,
               brand: brand,
               commandType: commandType,
@@ -234,7 +236,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const port = 3001;
+const port = 3002;
 http.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
