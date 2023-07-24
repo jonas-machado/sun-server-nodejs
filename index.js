@@ -35,19 +35,23 @@ io.on("connection", (socket) => {
       console.log("Connected to Telnet server");
 
       // Send commands to the server
-      connection.exec(command, async function (err, response) {
-        console.log(response);
-        io.to(socket.id).emit("telnet response", {
-          data: response,
-          commandType: commandType,
-        });
-        if (err) {
-          console.log(err);
-        }
+      try {
+        connection.exec(command, async function (err, response) {
+          console.log(response);
+          io.to(socket.id).emit("telnet response", {
+            data: response,
+            commandType: commandType,
+          });
+          if (err) {
+            console.log(err);
+          }
 
-        // Close the connection
-        connection.end();
-      });
+          // Close the connection
+          connection.end();
+        });
+      } catch (error) {
+        console.log(error);
+      }
     });
 
     connection.on("close", function () {
@@ -77,24 +81,28 @@ io.on("connection", (socket) => {
         if (err) {
           console.log(err);
         }
-        connection.exec(
-          command,
-          { execTimeout: 10000 },
-          function (err, response) {
-            const cleanedResponse = cleanPagination(response);
+        try {
+          connection.exec(
+            command,
+            { execTimeout: 10000 },
+            function (err, response) {
+              const cleanedResponse = cleanPagination(response);
 
-            console.log(response);
-            io.to(socket.id).emit("telnet response", {
-              data: cleanedResponse,
-              commandType: commandType,
-            });
-            if (err) {
-              console.log(err);
+              console.log(response);
+              io.to(socket.id).emit("telnet response", {
+                data: cleanedResponse,
+                commandType: commandType,
+              });
+              if (err) {
+                console.log(err);
+              }
+
+              connection.end();
             }
-
-            connection.end();
-          }
-        );
+          );
+        } catch (error) {
+          console.log(error);
+        }
       });
     });
 
@@ -137,15 +145,19 @@ io.on("connection", (socket) => {
       const sendNextCommand = () => {
         if (i < commands.length) {
           // Send commands to the server
-          connection.exec(commands[i], async function (err, response) {
-            console.log(response);
-            res.push(response);
-            if (err) {
-              console.log(err);
-            }
-            i++;
-            sendNextCommand();
-          });
+          try {
+            connection.exec(commands[i], async function (err, response) {
+              console.log(response);
+              res.push(response);
+              if (err) {
+                console.log(err);
+              }
+              i++;
+              sendNextCommand();
+            });
+          } catch (error) {
+            console.log(error);
+          }
         } else {
           io.to(socket.id).emit("multipleResponse", {
             data: res,
@@ -188,22 +200,27 @@ io.on("connection", (socket) => {
         if (err) {
           console.log(err);
         }
+
         const sendNextCommand = () => {
           if (i < commands.length) {
             // Send commands to the server
-            connection.exec(
-              commands[i],
-              { execTimeout: 20000 },
-              async function (err, response) {
-                console.log(response);
-                res.push(response);
-                if (err) {
-                  console.log(err);
+            try {
+              connection.exec(
+                commands[i],
+                { execTimeout: 20000 },
+                async function (err, response) {
+                  console.log(response);
+                  res.push(response);
+                  if (err) {
+                    console.log(err);
+                  }
+                  i++;
+                  sendNextCommand();
                 }
-                i++;
-                sendNextCommand();
-              }
-            );
+              );
+            } catch (error) {
+              console.log(error);
+            }
           } else {
             const cleanedResponse = res.map((ont) => cleanPagination(ont));
             io.to(socket.id).emit("multipleResponse", {
@@ -236,7 +253,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const port = 3002;
+const port = 3001;
 http.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
