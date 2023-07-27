@@ -76,12 +76,12 @@ io.on("connection", (socket) => {
     };
     connection.on("ready", async function () {
       console.log("Connected to Telnet server", socket.id);
-      connection.send("conf", function (err, response) {
-        console.log(response);
-        if (err) {
-          console.log(err);
-        }
-        try {
+      try {
+        connection.send("conf", function (err, response) {
+          console.log(response);
+          if (err) {
+            console.log(err);
+          }
           connection.exec(
             command,
             { execTimeout: 10000 },
@@ -100,10 +100,10 @@ io.on("connection", (socket) => {
               connection.end();
             }
           );
-        } catch (error) {
-          console.log(error);
-        }
-      });
+        });
+      } catch (error) {
+        console.log(error);
+      }
     });
 
     connection.on("close", function () {
@@ -195,16 +195,16 @@ io.on("connection", (socket) => {
       console.log("Connected to Telnet server");
       let i = 0;
       let res = [];
-      connection.send("conf", function (err, response) {
-        console.log(response);
-        if (err) {
-          console.log(err);
-        }
+      try {
+        connection.send("conf", function (err, response) {
+          console.log(response);
+          if (err) {
+            console.log(err);
+          }
 
-        const sendNextCommand = () => {
-          if (i < commands.length) {
-            // Send commands to the server
-            try {
+          const sendNextCommand = () => {
+            if (i < commands.length) {
+              // Send commands to the server
               connection.exec(
                 commands[i],
                 { execTimeout: 20000 },
@@ -218,22 +218,22 @@ io.on("connection", (socket) => {
                   sendNextCommand();
                 }
               );
-            } catch (error) {
-              console.log(error);
+            } else {
+              const cleanedResponse = res.map((ont) => cleanPagination(ont));
+              io.to(socket.id).emit("multipleResponse", {
+                data: cleanedResponse,
+                brand: brand,
+                commandType: commandType,
+              });
+              // Close the connection
+              connection.end();
             }
-          } else {
-            const cleanedResponse = res.map((ont) => cleanPagination(ont));
-            io.to(socket.id).emit("multipleResponse", {
-              data: cleanedResponse,
-              brand: brand,
-              commandType: commandType,
-            });
-            // Close the connection
-            connection.end();
-          }
-        };
-        sendNextCommand();
-      });
+          };
+          sendNextCommand();
+        });
+      } catch (error) {
+        console.log(error);
+      }
     });
 
     connection.on("close", function () {
