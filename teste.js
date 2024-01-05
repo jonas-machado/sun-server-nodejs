@@ -16,7 +16,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("connectTelnet", ({ ip, command, brand, commandType }) => {
-    console.log("to run telnet zte");
+    console.log(ip, command, brand, commandType);
     const connection = new Telnet();
     const params = {
       host: ip,
