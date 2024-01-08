@@ -4,14 +4,15 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: { origin: "*" },
 });
-const {
-  connectZte,
-  connectDatacom,
-  multipleTelnet,
-  multipleTelnetDatacom,
-} = require("./controllers/socket/connectTelnet");
+// const {
+//   connectZte,
+//   connectDatacom,
+//   multipleTelnet,
+//   multipleTelnetDatacom,
+// } = require("./controllers/socket/connectTelnet");
 
-const { message } = require("./controllers/socket/monitoring");
+const { fnMessage } = require("./controllers/socket/monitoring")(io);
+console.log(fnMessage);
 
 // Define the Telnet server information
 
@@ -22,15 +23,15 @@ io.on("connection", (socket) => {
     console.log("A user disconnected", socket.id);
   });
 
-  socket.on("connectTelnet", connectZte);
+  // socket.on("connectTelnet", connectZte);
 
-  socket.on("connectTelnetDatacom", connectDatacom);
+  // socket.on("connectTelnetDatacom", connectDatacom);
 
-  socket.on("multipleTelnet", multipleTelnet);
+  // socket.on("multipleTelnet", multipleTelnet);
 
-  socket.on("multipleDatacomTelnet", multipleTelnetDatacom);
+  // socket.on("multipleDatacomTelnet", multipleTelnetDatacom);
 
-  socket.on("message", message);
+  socket.on("message", fnMessage);
 });
 
 const port = 3001;
