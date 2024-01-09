@@ -5,10 +5,10 @@ const io = require("socket.io")(http, {
   cors: { origin: "*" },
 });
 const { connectZte, connectDatacom, multipleTelnet, multipleTelnetDatacom } =
-  require("./controllers/socket/connectTelnet")(io);
+  require("./controllers/socket/connectTelnet")(io.socket);
 
 const { fnMessage, status, date, bases } =
-  require("./controllers/socket/monitoring")(io);
+  require("./controllers/socket/monitoring")(io.socket);
 console.log(fnMessage);
 
 // Define the Telnet server information

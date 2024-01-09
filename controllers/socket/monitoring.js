@@ -1,8 +1,8 @@
 module.exports = (io) => {
   const fnMessage = ({ message, id }) => {
     console.log(message);
-
-    io.broadcast.emit("attMessage", {
+    console.log(io);
+    io.emit("attMessage", {
       message: message,
       textId: id,
     });
@@ -10,7 +10,7 @@ module.exports = (io) => {
 
   const status = ({ isUp, id }) => {
     console.log(isUp);
-    io.broadcast.emit("attStatus", {
+    io.emit("attStatus", {
       isUp: isUp,
       itemId: id,
     });
@@ -19,7 +19,7 @@ module.exports = (io) => {
   const date = ({ currentDate, id }) => {
     console.log(currentDate);
 
-    io.broadcast.emit("attDate", {
+    io.emit("attDate", {
       currentDate: currentDate,
       itemId: id,
     });
@@ -28,7 +28,7 @@ module.exports = (io) => {
   const bases = ({ currentBases, id }) => {
     console.log(currentBases);
 
-    io.broadcast.emit("attBases", {
+    io.emit("attBases", {
       currentBases: currentBases,
       itemId: id,
     });
