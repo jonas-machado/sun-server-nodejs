@@ -7,7 +7,8 @@ const io = require("socket.io")(http, {
 const { connectZte, connectDatacom, multipleTelnet, multipleTelnetDatacom } =
   require("./controllers/socket/connectTelnet")(io);
 
-const { fnMessage } = require("./controllers/socket/monitoring")(io);
+const { fnMessage, status, date, bases } =
+  require("./controllers/socket/monitoring")(io);
 console.log(fnMessage);
 
 // Define the Telnet server information
@@ -28,6 +29,10 @@ io.on("connection", (socket) => {
   socket.on("multipleDatacomTelnet", multipleTelnetDatacom);
 
   socket.on("message", fnMessage);
+  socket.on("status", status);
+
+  socket.on("date", date);
+  socket.on("bases", bases);
 });
 
 const port = 3001;
