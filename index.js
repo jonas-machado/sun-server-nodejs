@@ -4,35 +4,19 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http, {
   cors: { origin: "*" },
 });
-const { connectZte, connectDatacom, multipleTelnet, multipleTelnetDatacom } =
-  require("./controllers/socket/connectTelnet")(io.socket);
+const telnet = require("./controllers/socket/connectTelnet");
 
-const { fnMessage, status, date, bases } =
-  require("./controllers/socket/monitoring")(io.socket);
-console.log(fnMessage);
+const monitoring = require("./controllers/socket/monitoring");
 
 // Define the Telnet server information
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
-
+  //telnet(io, socket);
+  monitoring(io, socket);
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
-
-  socket.on("connectTelnet", connectZte);
-
-  socket.on("connectTelnetDatacom", connectDatacom);
-
-  socket.on("multipleTelnet", multipleTelnet);
-
-  socket.on("multipleDatacomTelnet", multipleTelnetDatacom);
-
-  socket.on("message", fnMessage);
-  socket.on("status", status);
-
-  socket.on("date", date);
-  socket.on("bases", bases);
 });
 
 const port = 3001;

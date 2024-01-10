@@ -1,6 +1,6 @@
 const { Telnet } = require("telnet-client");
 
-module.exports = (io) => {
+module.exports = (io, socket) => {
   const connectZte = ({ ip, command, brand, commandType }) => {
     console.log(ip, command, brand, commandType);
     const connection = new Telnet();
@@ -240,10 +240,11 @@ module.exports = (io) => {
     connection.connect(params);
   };
 
-  return {
-    connectZte,
-    connectDatacom,
-    multipleTelnet,
-    multipleTelnetDatacom,
-  };
+  socket.on("connectTelnet", connectZte);
+
+  socket.on("connectTelnetDatacom", connectDatacom);
+
+  socket.on("multipleTelnet", multipleTelnet);
+
+  socket.on("multipleDatacomTelnet", multipleTelnetDatacom);
 };
