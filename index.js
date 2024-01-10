@@ -12,8 +12,8 @@ const monitoring = require("./controllers/socket/monitoring");
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
-  //telnet(io, socket);
   monitoring(io, socket);
+  telnet(io, socket);
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
