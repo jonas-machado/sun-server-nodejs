@@ -34,9 +34,14 @@ module.exports = (io, socket) => {
     });
   };
 
+  const router = () => {
+    io.emit("routerRefresh");
+  };
+
   socket.on("message", fnMessage);
   socket.on("status", status);
 
   socket.on("date", date);
   socket.on("bases", bases);
+  socket.on("refresh", router);
 };
