@@ -1,8 +1,8 @@
-module.exports = (io, socket) => {
-  const fnMessage = ({ message, id }) => {
+module.exports = async (io, socket) => {
+  const fnMessage = async ({ message, id }) => {
     console.log(message);
 
-    socket.broadcast.emit("attMessage", {
+    await socket.broadcast.emit("attMessage", {
       message: message,
       textId: id,
     });
@@ -38,10 +38,10 @@ module.exports = (io, socket) => {
     io.emit("routerRefresh");
   };
 
-  socket.on("message", fnMessage);
-  socket.on("status", status);
+  await socket.on("message", fnMessage);
+  await socket.on("status", status);
 
-  socket.on("date", date);
-  socket.on("bases", bases);
-  socket.on("refresh", router);
+  await socket.on("date", date);
+  await socket.on("bases", bases);
+  await socket.on("refresh", router);
 };
