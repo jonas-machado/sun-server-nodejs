@@ -1,7 +1,12 @@
+const axios = require("axios");
+
 module.exports = async (io, socket) => {
   const fnMessage = async ({ message, id }) => {
     console.log(message);
-
+    axios.post("http://localhost:3000/api/monitoring/update", {
+      text: message,
+      id,
+    });
     await socket.broadcast.emit("attMessage", {
       message: message,
       textId: id,
