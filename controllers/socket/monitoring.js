@@ -15,6 +15,10 @@ module.exports = async (io, socket) => {
 
   const status = ({ isUp, id }) => {
     console.log(isUp);
+    axios.post("http://localhost:3000/api/monitoring/update", {
+      isUp,
+      id,
+    });
     socket.broadcast.emit("attStatus", {
       isUp: isUp,
       itemId: id,
@@ -23,7 +27,10 @@ module.exports = async (io, socket) => {
 
   const date = ({ currentDate, id }) => {
     console.log(currentDate);
-
+    axios.post("http://localhost:3000/api/monitoring/update", {
+      dateDown: currentDate,
+      id,
+    });
     socket.broadcast.emit("attDate", {
       currentDate: currentDate,
       itemId: id,
@@ -32,7 +39,10 @@ module.exports = async (io, socket) => {
 
   const bases = ({ currentBases, id }) => {
     console.log(currentBases);
-
+    axios.post("http://localhost:3000/api/monitoring/update", {
+      bases: currentBases,
+      id,
+    });
     socket.broadcast.emit("attBases", {
       currentBases: currentBases,
       itemId: id,
