@@ -53,10 +53,17 @@ module.exports = async (io, socket) => {
     io.emit("routerRefresh");
   };
 
+  const alert = ({ message }) => {
+    io.emit("alertUsers", {
+      message,
+    });
+  };
+
   await socket.on("message", fnMessage);
   await socket.on("status", status);
 
   await socket.on("date", date);
   await socket.on("bases", bases);
   await socket.on("refresh", router);
+  await socket.on("alert", alert);
 };
