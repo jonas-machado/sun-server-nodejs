@@ -2,7 +2,6 @@ const axios = require("axios");
 
 module.exports = async (io, socket) => {
   const fnMessage = async ({ message, id }) => {
-    console.log(message);
     axios.post("http://localhost:3000/api/monitoring/update", {
       text: message,
       id,
@@ -14,7 +13,6 @@ module.exports = async (io, socket) => {
   };
 
   const status = ({ isUp, id }) => {
-    console.log(isUp);
     axios.post("http://localhost:3000/api/monitoring/update", {
       isUp,
       id,
@@ -26,7 +24,6 @@ module.exports = async (io, socket) => {
   };
 
   const date = ({ currentDate, id }) => {
-    console.log(currentDate);
     axios.post("http://localhost:3000/api/monitoring/update", {
       dateDown: currentDate,
       id,
@@ -38,7 +35,6 @@ module.exports = async (io, socket) => {
   };
 
   const bases = ({ currentBases, id }) => {
-    console.log(currentBases);
     axios.post("http://localhost:3000/api/monitoring/update", {
       bases: currentBases,
       id,
