@@ -8,12 +8,15 @@ const telnet = require("./controllers/socket/connectTelnet");
 
 const monitoring = require("./controllers/socket/monitoring");
 
+const auth = require("./controllers/socket/auth");
+
 // Define the Telnet server information
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
   monitoring(io, socket);
   telnet(io, socket);
+  auth(io, socket);
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
   });
