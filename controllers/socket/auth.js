@@ -4,13 +4,14 @@ module.exports = async (io, socket) => {
   const onSignOutAll = async () => {
     console.log("working");
 
-    await socket.broadcast.emit("signOutAll");
+    await io.emit("signOutAll");
   };
 
   const onSignOutUser = async ({ email }) => {
     console.log("working");
+    console.log(email);
 
-    await socket.broadcast.emit("signOutUser", { email });
+    await io.emit("signOutUser", { email });
   };
 
   await socket.on("signOutAllUsers", onSignOutAll);
