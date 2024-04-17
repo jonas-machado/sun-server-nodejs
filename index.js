@@ -15,7 +15,7 @@ const auth = require("./controllers/socket/auth");
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
   monitoring(io, socket);
-  telnet(io, socket);
+  //telnet(io, socket);
   auth(io, socket);
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
