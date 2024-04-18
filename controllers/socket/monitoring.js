@@ -23,6 +23,17 @@ module.exports = async (io, socket) => {
     });
   };
 
+  const currentTecnology = ({ tecnology, id }) => {
+    axios.post("http://localhost:3000/api/monitoring/update", {
+      tecnology,
+      id,
+    });
+    socket.broadcast.emit("attTecnology", {
+      tecnology,
+      itemId: id,
+    });
+  };
+
   const date = ({ currentDate, id }) => {
     axios.post("http://localhost:3000/api/monitoring/update", {
       dateDown: currentDate,
@@ -57,7 +68,7 @@ module.exports = async (io, socket) => {
 
   await socket.on("message", fnMessage);
   await socket.on("status", status);
-
+  await socket.on("tecnology", currentTecnology);
   await socket.on("date", date);
   await socket.on("bases", bases);
   await socket.on("refresh", router);
