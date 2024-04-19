@@ -2,10 +2,12 @@ const axios = require("axios");
 
 module.exports = async (io, socket) => {
   const fnMessage = async ({ message, id }) => {
-    axios.post("http://localhost:3000/api/monitoring/update", {
-      text: message,
-      id,
-    });
+    axios
+      .post("http://localhost:3000/api/monitoring/update", {
+        text: message,
+        id,
+      })
+      .catch((err) => console.log(err));
     await socket.broadcast.emit("attMessage", {
       message: message,
       textId: id,
@@ -13,10 +15,12 @@ module.exports = async (io, socket) => {
   };
 
   const status = ({ isUp, id }) => {
-    axios.post("http://localhost:3000/api/monitoring/update", {
-      isUp,
-      id,
-    });
+    axios
+      .post("http://localhost:3000/api/monitoring/update", {
+        isUp,
+        id,
+      })
+      .catch((err) => console.log(err));
     socket.broadcast.emit("attStatus", {
       isUp: isUp,
       itemId: id,
@@ -24,10 +28,12 @@ module.exports = async (io, socket) => {
   };
 
   const currentTecnology = ({ tecnology, id }) => {
-    axios.post("http://localhost:3000/api/monitoring/update", {
-      tecnology,
-      id,
-    });
+    axios
+      .post("http://localhost:3000/api/monitoring/update", {
+        tecnology,
+        id,
+      })
+      .catch((err) => console.log(err));
     socket.broadcast.emit("attTecnology", {
       tecnology,
       itemId: id,
@@ -35,10 +41,12 @@ module.exports = async (io, socket) => {
   };
 
   const date = ({ currentDate, id }) => {
-    axios.post("http://localhost:3000/api/monitoring/update", {
-      dateDown: currentDate,
-      id,
-    });
+    axios
+      .post("http://localhost:3000/api/monitoring/update", {
+        dateDown: currentDate,
+        id,
+      })
+      .catch((err) => console.log(err));
     socket.broadcast.emit("attDate", {
       currentDate: currentDate,
       itemId: id,
@@ -46,10 +54,12 @@ module.exports = async (io, socket) => {
   };
 
   const bases = ({ currentBases, id }) => {
-    axios.post("http://localhost:3000/api/monitoring/update", {
-      bases: currentBases,
-      id,
-    });
+    axios
+      .post("http://localhost:3000/api/monitoring/update", {
+        bases: currentBases,
+        id,
+      })
+      .catch((err) => console.log(err));
     socket.broadcast.emit("attBases", {
       currentBases: currentBases,
       itemId: id,
