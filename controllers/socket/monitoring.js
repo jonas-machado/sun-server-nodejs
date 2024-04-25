@@ -12,7 +12,7 @@ module.exports = async (io, socket) => {
 
     await socket.broadcast.emit("attMessage", {
       message: message,
-      textId: id,
+      id,
     });
     console.log("pass");
   };
@@ -26,7 +26,7 @@ module.exports = async (io, socket) => {
       .catch((err) => console.log(err));
     await socket.broadcast.emit("attStatus", {
       isUp: isUp,
-      itemId: id,
+      id,
     });
   };
 
@@ -40,7 +40,7 @@ module.exports = async (io, socket) => {
       .catch((err) => console.log(err));
     await socket.broadcast.emit("attTecnology", {
       tecnology,
-      itemId: id,
+      id,
     });
   };
 
@@ -53,7 +53,7 @@ module.exports = async (io, socket) => {
       .catch((err) => console.log(err));
     await socket.broadcast.emit("attDate", {
       currentDate: currentDate,
-      itemId: id,
+      id,
     });
   };
 
