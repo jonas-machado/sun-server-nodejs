@@ -2,65 +2,69 @@ const axios = require("axios");
 
 module.exports = async (io, socket) => {
   const fnMessage = async ({ message, id }) => {
-    axios
+    console.log(message);
+    await axios
       .post("http://localhost:3000/api/monitoring/update", {
         text: message,
         id,
       })
       .catch((err) => console.log(err));
+
     await socket.broadcast.emit("attMessage", {
       message: message,
       textId: id,
     });
+    console.log("pass");
   };
 
-  const status = ({ isUp, id }) => {
-    axios
+  const status = async ({ isUp, id }) => {
+    await axios
       .post("http://localhost:3000/api/monitoring/update", {
         isUp,
         id,
       })
       .catch((err) => console.log(err));
-    socket.broadcast.emit("attStatus", {
+    await socket.broadcast.emit("attStatus", {
       isUp: isUp,
       itemId: id,
     });
   };
 
-  const currentTecnology = ({ tecnology, id }) => {
-    axios
+  const currentTecnology = async ({ tecnology, id }) => {
+    console.log(tecnology);
+    await axios
       .post("http://localhost:3000/api/monitoring/update", {
         tecnology,
         id,
       })
       .catch((err) => console.log(err));
-    socket.broadcast.emit("attTecnology", {
+    await socket.broadcast.emit("attTecnology", {
       tecnology,
       itemId: id,
     });
   };
 
-  const date = ({ currentDate, id }) => {
-    axios
+  const date = async ({ currentDate, id }) => {
+    await axios
       .post("http://localhost:3000/api/monitoring/update", {
         dateDown: currentDate,
         id,
       })
       .catch((err) => console.log(err));
-    socket.broadcast.emit("attDate", {
+    await socket.broadcast.emit("attDate", {
       currentDate: currentDate,
       itemId: id,
     });
   };
 
-  const bases = ({ currentBases, id }) => {
-    axios
+  const bases = async ({ currentBases, id }) => {
+    await axios
       .post("http://localhost:3000/api/monitoring/update", {
         bases: currentBases,
         id,
       })
       .catch((err) => console.log(err));
-    socket.broadcast.emit("attBases", {
+    await socket.broadcast.emit("attBases", {
       currentBases: currentBases,
       itemId: id,
     });

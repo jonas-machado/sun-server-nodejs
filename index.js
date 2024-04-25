@@ -21,7 +21,7 @@ io.on("connection", (socket) => {
     console.log("A user disconnected", socket.id);
   });
   socket.on("error", (err) => {
-    console.log(err);
+    console.log("error:" + err);
   });
 });
 
