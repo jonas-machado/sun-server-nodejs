@@ -2,7 +2,7 @@ const axios = require("axios");
 
 module.exports = async (io, socket) => {
   const fnMessage = async ({ message, id }) => {
-    console.log(message);
+    console.log(message, id);
     await axios
       .post("http://localhost:3000/api/monitoring/update", {
         text: message,
@@ -10,11 +10,11 @@ module.exports = async (io, socket) => {
       })
       .catch((err) => console.log(err));
 
-    await socket.broadcast.emit("attMessage", {
+    const res = await socket.broadcast.emit("attMessage", {
       message: message,
-      id,
+      id: id,
     });
-    console.log("pass");
+    console.log(res);
   };
 
   const status = async ({ isUp, id }) => {
