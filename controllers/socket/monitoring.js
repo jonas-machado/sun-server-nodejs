@@ -70,6 +70,7 @@ module.exports = async (io, socket) => {
   };
 
   const router = () => {
+    console.log("called refresh");
     io.emit("routerRefresh");
   };
 
