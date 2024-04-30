@@ -9,11 +9,10 @@ module.exports = async (io, socket) => {
       })
       .catch((err) => console.log(err));
 
-    const res = await socket.broadcast.emit("attMessage", {
+    await socket.broadcast.emit("attMessage", {
       message: message,
       id,
     });
-    console.log(res);
   };
 
   const status = async ({ isUp, id }) => {
@@ -30,7 +29,6 @@ module.exports = async (io, socket) => {
   };
 
   const currentTecnology = async ({ tecnology, id }) => {
-    console.log(tecnology);
     await axios
       .post("http://localhost:3000/api/monitoring/update", {
         tecnology,
@@ -70,7 +68,6 @@ module.exports = async (io, socket) => {
   };
 
   const router = () => {
-    console.log("called refresh");
     io.emit("routerRefresh");
   };
 
